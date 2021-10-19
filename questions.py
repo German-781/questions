@@ -53,7 +53,6 @@ def main():
 
 
 def load_files(directory):
-    print("load files")
     """
     Given a directory name, return a dictionary mapping the filename of each
     `.txt` file inside that directory to the file's contents as a string.
@@ -62,12 +61,9 @@ def load_files(directory):
 
     oraciones = dict()
 
-    print("directory ", directory)
-
     contenido = os.listdir(directory)
 
     for archivo in contenido:
-        print("archivo ", archivo)
         with open(os.path.join(directory, archivo), encoding=('utf-8')) as f:
             oraciones[archivo] = f.read()
 
@@ -77,7 +73,6 @@ def load_files(directory):
 
 
 def tokenize(document):
-    #print("tokenize")
     """
     Given a document (represented as a string), return a list of all of the
     words in that document, in order.
@@ -98,18 +93,14 @@ def tokenize(document):
             if minuscula not in palabras_vacias:
                 palabras.append(minuscula)
     
-    #print("palabras ", palabras)
-    
+   
     return palabras
-
-
 
 
     raise NotImplementedError
 
 
 def compute_idfs(documents):
-    print("compute idfs")
     """
     Given a dictionary of `documents` that maps names of documents to a list
     of words, return a dictionary that maps words to their IDF values.
@@ -121,20 +112,13 @@ def compute_idfs(documents):
     
 
     primer_document0 = list(documents.keys())[0]
-    print("primer documento ", primer_document0)
-
-    print("largo primer documento ", len(documents[primer_document0]))
   
     num_doc = len(documents)
-    print("numero documentos ", num_doc)
     num_word = 0
 
-
     for articulo in documents:
-        #print("articulo ", articulo)
         lista = []
 
-        
         for palabra in documents[articulo]:
             if palabra not in lista:
                 num = 1
@@ -146,56 +130,17 @@ def compute_idfs(documents):
                     numero = words_idfs[palabra]
                     numero = numero + num   
                     words_idfs.update({palabra:numero})
-
-        #print("largo lista ", articulo, len(lista))
-    print("largo dicc ", len(words_idfs))
-    print("num word ", num_word)
-
-    idf1 = np.log(num_doc / 1)
-    idf2 = np.log(num_doc / 2)
-    idf3 = np.log(num_doc / 3)
-    idf4 = np.log(num_doc / 4)
-    idf5 = np.log(num_doc / 5)
-    idf6 = np.log(num_doc / 6)
-
-    print("idfs ", idf1, idf2, idf3, idf4, idf5, idf6)
-
-    
+  
     for word in words_idfs:
         numero = words_idfs[word]
-        if numero == 1:
-            words_idfs.update({word:idf1})
-        elif numero == 2:
-            words_idfs.update({word:idf2})
-        elif numero == 3:
-            words_idfs.update({word:idf3})
-        elif numero == 4:
-            words_idfs.update({word:idf4})
-        elif numero == 5:
-            words_idfs.update({word:idf5})
-        elif numero == 6:
-            words_idfs.update({word:idf6})
-
-    #print("IA ", words_idfs["IA"])
-    #print("probability ", words_idfs["probability"])
-    #print("Python ", words_idfs["python"])
-    #print("system ", words_idfs["system"])
-    #print("neuronal ", words_idfs["neuronal"])
-    #print("learning ", words_idfs["learning"])
-
-
-    print("words_idfs largo ", len(words_idfs))
+        idf = np.log(num_doc / numero)
+        words_idfs.update({word:idf})
 
     return words_idfs
 
-
-        #    print(documents[articulo])
-
-    #raise NotImplementedError
-
+    raise NotImplementedError
 
 def top_files(query, files, idfs, n):
-    print("top files")
     """
     Given a `query` (a set of words), `files` (a dictionary mapping names of
     files to a list of their words), and `idfs` (a dictionary mapping words
@@ -203,66 +148,40 @@ def top_files(query, files, idfs, n):
     files that match the query, ranked according to tf-idf.
     """
 
-    print("query ", query)
-    print("n ", n)
-    #print("files ", files)
-    #print("idfs ", idfs)
-
     dic_words = {}
 
     for termino in query:
         lista = []
         for articulo in files:
-            #print("articulo ", articulo)
             num = 0
             archivo = articulo
             dic_words.update({termino:[]})
 
             for palabra in files[articulo]:
-                encuentra = False
                 if termino == palabra:
-                    encuentra = True
                     num = num + 1
                     otro = {archivo:num}
-                    #print("termino ", termino)
-                    #print("otro ", otro)
             if num > 0:
                 lista.append(otro)
-        
-            #print("lista articulos ", termino, lista)
 
         dic_words.update({termino:lista})
-        #print("termino en files ", dic_words)    
-
-
-    print("frecuencia words ", dic_words)
 
     dic_tfidf = {}
 
     for word in dic_words:
-        print("word ", word)
         if word in idfs:
             idf = idfs[word]
             lista = dic_words[word]
             for doc in lista:
-                print("doc ", doc)
                 for k in doc.keys():
                     tf = doc[k]
                     tfidf = tf * idf
-                    #print("k ", k, "tf", tf, "idf", idf, "itf ", tfidf)
                     if k in dic_tfidf:
                         tfid = dic_tfidf[k]
-                        print("tfid ", tfid)
                         tfidf = tfidf + tfid
-                        print("tfidf ", tfidf)
                     dic_tfidf.update({k:tfidf})
-                    #print("dic tfidf en k ", dic_tfidf)                
-                    #print("k ", k, "tf", tf, "idf ", idf, "tfidf ", tfidf)
-    #print("dic tfidf ", dic_tfidf)                
 
     dic_tfidf_desc = dict(sorted(dic_tfidf.items(), key=itemgetter(1), reverse=True))
-    #print("dic_tfidf desc ", dic_tfidf_desc)
-    #print(" dic keys ", dic_tfidf_desc.keys())
 
     lista_file = []
     file_select = 0
@@ -271,16 +190,12 @@ def top_files(query, files, idfs, n):
             lista_file.append(archivo)
             file_select = file_select + 1
 
-    print("lista file ", lista_file)
-
     return lista_file
 
     raise NotImplementedError
 
 
 def top_sentences(query, sentences, idfs, n):
-
-    print("top sentences ")
 
     """
     Given a `query` (a set of words), `sentences` (a dictionary mapping
@@ -294,48 +209,47 @@ def top_sentences(query, sentences, idfs, n):
         if word in idfs:
             valor_idf = idfs[word]
             dic_query.update({word:valor_idf})
-    print("diccionario query ", dic_query)
 
-    
-    
     lista_oraciones = []
     dic_oraciones = {}
 
-    print("n ", n)
-    #print("oraciones ", sentences)
-    print("numero de oraciones ", len(sentences))
-    #print("idfs ", idfs)
-    print("query ", query)
-
     iteracion = 1
     for oracion in sentences:
-        #print("oracion ", oracion)
         palabras = sentences[oracion]
-        #print("palabras ", palabras)
+        largo = len(palabras)
         iteracion = iteracion + 1
-        #if iteracion > 20:
-        #    break
 
         val_idf = 0
+        palabra_usada = []
+        frec_palabra = 0
         for palabra in palabras:
             if palabra in query:
-                #print("palabra ", palabra)
-                #print("idf ", dic_query[palabra])
+                frec_palabra = frec_palabra + 1
                 if oracion in dic_oraciones:
-                    val_idf = val_idf + dic_query[palabra]
-                    continue
+                    if palabra in palabra_usada:
+                        continue
+                    else:
+                        val_idf = dic_query[palabra]  + dic_oraciones[oracion]
+                        palabra_usada.append(palabra)
                 else:
                     val_idf = dic_query[palabra]
-
+                    palabra_usada.append(palabra)
                 dic_oraciones.update({oracion:val_idf})
 
-    print("dic oraciones ", dic_oraciones)
-    print("numero de oraciones ", len(dic_oraciones))
-    print("iteraciones ", iteracion)
+        densidad_termino = frec_palabra / largo
+        val_idf = val_idf + densidad_termino
+        dic_oraciones.update({oracion:val_idf})
 
+    dic_oraciones_desc = dict(sorted(dic_oraciones.items(), key=itemgetter(1), reverse=True))
 
+    file_select = 0
+    for oracion in dic_oraciones_desc.keys():
+        if file_select < n :
+            lista_oraciones.append(oracion)
+            file_select = file_select + 1
 
     return lista_oraciones
+
     raise NotImplementedError
 
 
